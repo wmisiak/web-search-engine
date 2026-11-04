@@ -1,3 +1,4 @@
+import json
 import os
 
 import psycopg
@@ -53,3 +54,11 @@ def get_pages() -> list[dict]:
         }
         for row in rows
     ]
+
+
+def update_index_structure(page_id: int, index_structure: dict[str, float]) -> None:
+    with psycopg.connect(**DB_CONFIG) as conn:
+        conn.execute(
+            "UPDATE pages SET index_structure = %s WHERE id = %s",
+            (json.dumps(index_structure), page_id),
+        )
