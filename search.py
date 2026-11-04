@@ -18,31 +18,52 @@ def cosine_similarity(query_vector: dict[str, float], document_vector: dict[str,
     return dot_product / (query_norm * document_norm)
 
 
-def create_query_vector(query: str) -> dict[str, float]:
-    tokens = tokenize(query)
-    tokens = remove_stop_words(tokens)
+def calculate_document_frequency(pages: list[dict]) -> dict[str, int]:
+    document_frequency = Counter()
+
+    for page in pages:
+        document_vector = page["index_structure"] or {}
+        document_frequency.update(document_vector.keys())
+
+    return dict(document_frequency)
+
+
+def create_query_vector(query: str, document_frequency: dict[str, int], number_of_documents: int) -> dict[str, float]:
+    tokens = remove_stop_words(tokenize(query))
 
     if not tokens:
         return {}
 
     frequencies = Counter(tokens)
     total_terms = sum(frequencies.values())
+    query_vector = {}
 
-    return {
-        token: frequency / total_terms
-        for token, frequency in frequencies.items()
-    }
+    for token, frequency in frequencies.items():
+        if token not in document_frequency:
+            continue
+
+        tf = frequency / total_terms
+        idf = math.log((number_of_documents + 1) / (document_frequency[token] + 1)) + 1
+        query_vector[token] = tf * idf
+
+    return query_vector
 
 
 def search(query: str, limit: int = 10) -> list[dict]:
-    query_vector = create_query_vector(query)
+    pages = get_pages()
+
+    if not pages:
+        return []
+
+    document_frequency = calculate_document_frequency(pages)
+    query_vector = create_query_vector(query, document_frequency, len(pages))
 
     if not query_vector:
         return []
 
     results = []
 
-    for page in get_pages():
+    for page in pages:
         document_vector = page["index_structure"] or {}
         score = cosine_similarity(query_vector, document_vector)
 

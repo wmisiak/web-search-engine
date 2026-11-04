@@ -20,9 +20,6 @@ def index_pages(pages: list[dict]) -> int:
     for page in pages:
         if index_page(page):
             indexed += 1
-            print(f"Zaindeksowano: {page['title']}")
-        else:
-            print(f"Pominięto: {page['title']}")
 
     return indexed
 
@@ -69,7 +66,6 @@ def build_index() -> None:
     for page in pages:
         term_frequency = process_text(page["content"])
         tfidf = calculate_tfidf(term_frequency, idf_values)
-
         update_index_structure(page["id"], tfidf)
 
     print(f"Zbudowano indeks TF-IDF dla {len(pages)} stron.")
@@ -81,7 +77,7 @@ def main():
     pages = crawl(start_url, max_depth=5, max_pages=100, max_links_per_page=2)
     indexed = index_pages(pages)
 
-    print(f"\nPobrano stron: {len(pages)}")
+    print(f"Pobrano stron: {len(pages)}")
     print(f"Nowych stron w indeksie: {indexed}")
 
     build_index()
