@@ -29,10 +29,7 @@ def load_robots_parser() -> urllib.robotparser.RobotFileParser:
     return parser
 
 
-robot_parser = load_robots_parser()
-
-
-def can_fetch(url: str) -> bool:
+def can_fetch(url: str, robot_parser: urllib.robotparser.RobotFileParser) -> bool:
     return robot_parser.can_fetch(ROBOT_NAME, url)
 
 
@@ -62,8 +59,8 @@ def extract_links(soup: BeautifulSoup) -> list[str]:
 
 @sleep_and_retry
 @limits(calls=1, period=1)
-def fetch_page(url: str) -> dict:
-    if not can_fetch(url):
+def fetch_page(url: str, robot_parser: urllib.robotparser.RobotFileParser) -> dict:
+    if not can_fetch(url, robot_parser):
         raise PermissionError(f"robots.txt zabrania pobrania: {url}")
 
     response = requests.get(url, headers=HEADERS, timeout=10)
@@ -88,6 +85,8 @@ def fetch_page(url: str) -> dict:
 
 
 def crawl(start_url: str, max_depth: int = 5, max_pages: int = 100, max_links_per_page: int = 2) -> list[dict]:
+    robot_parser = load_robots_parser()
+
     queue = deque([(start_url, 0)])
     visited = set()
     pages = []
@@ -101,7 +100,7 @@ def crawl(start_url: str, max_depth: int = 5, max_pages: int = 100, max_links_pe
         visited.add(url)
 
         try:
-            page = fetch_page(url)
+            page = fetch_page(url, robot_parser)
         except (requests.RequestException, PermissionError, RuntimeError) as error:
             print(f"Błąd: {url} - {error}")
             continue
@@ -111,8 +110,6 @@ def crawl(start_url: str, max_depth: int = 5, max_pages: int = 100, max_links_pe
             "title": page["title"],
             "content": page["content"],
         })
-
-        print(f"[{len(pages)}/{max_pages}] Głębokość {depth}: {page['title']}")
 
         if depth >= max_depth:
             continue
@@ -135,13 +132,10 @@ def crawl(start_url: str, max_depth: int = 5, max_pages: int = 100, max_links_pe
 def main():
     start_url = "https://pl.wikipedia.org/wiki/Sztuczna_inteligencja"
 
-    print(f"robots.txt pozwala na stronę startową: {can_fetch(start_url)}\n")
-
     pages = crawl(start_url, max_depth=5, max_pages=100, max_links_per_page=2)
 
-    print("\nZakończono crawling.")
     print(f"Pobrano stron: {len(pages)}")
 
-    
+
 if __name__ == "__main__":
     main()
