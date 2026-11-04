@@ -1,0 +1,5 @@
+requests
+beautifulsoup4
+ratelimit
+psycopg[binary]
+python-dotenv
