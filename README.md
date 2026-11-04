@@ -2,9 +2,9 @@
 
 System składający się z crawlera Wikipedii, indeksera TF-IDF oraz wyszukiwarki wykorzystującej podobieństwo cosinusowe. Dane przechowywane są w PostgreSQL.
 
-## Instalacja
+## Uruchomienie
 
-Zainstaluj zależności:
+Zainstaluj wymagane biblioteki:
 
 ```bash
 pip install -r requirements.txt
@@ -20,55 +20,45 @@ DB_USER=a_user
 DB_PASSWORD=pass123
 ```
 
-## Baza danych
-
-Uruchom PostgreSQL w Dockerze:
+Uruchom bazę danych:
 
 ```bash
 docker compose up -d
 ```
 
-Sprawdź, czy kontener działa:
-
-```bash
-docker ps
-```
-
-## Indeksowanie
-
-Uruchom crawler i zbuduj indeks:
+Uruchom crawler i indekser:
 
 ```bash
 python indexer.py
 ```
 
-Program pobierze strony z Wikipedii, zapisze nowe strony w PostgreSQL i zbuduje dla nich indeks TF-IDF.
+Podaj adres startowego artykułu z polskiej Wikipedii, np.:
+
+```text
+Podaj adres startowy Wikipedii: https://pl.wikipedia.org/wiki/Sztuczna_inteligencja
+```
 
 ## Wyszukiwanie
 
-Uruchom:
+Uruchom wyszukiwarkę:
 
 ```bash
 python search.py
 ```
 
-Następnie wpisz zapytanie, np.:
+Wpisz zapytanie, np.:
 
 ```text
 Wpisz zapytanie: uczenie maszynowe
 ```
 
-Program zwróci posortowaną listę najbardziej podobnych stron wraz z adresami URL.
-
 ## Testy
-
-Uruchom:
 
 ```bash
 python -m pytest -v
 ```
 
-## Zatrzymanie bazy
+## Zatrzymanie
 
 ```bash
 docker compose down

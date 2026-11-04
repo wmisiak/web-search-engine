@@ -72,7 +72,11 @@ def build_index() -> None:
 
 
 def main():
-    start_url = "https://pl.wikipedia.org/wiki/Sztuczna_inteligencja"
+    start_url = input("Podaj adres startowy Wikipedii: ").strip()
+
+    if not start_url.startswith("https://pl.wikipedia.org/wiki/"):
+        print("Podaj poprawny adres artykułu z polskiej Wikipedii.")
+        return
 
     pages = crawl(start_url, max_depth=5, max_pages=100, max_links_per_page=2)
     indexed = index_pages(pages)
@@ -81,7 +85,6 @@ def main():
     print(f"Nowych stron w indeksie: {indexed}")
 
     build_index()
-
 
 if __name__ == "__main__":
     main()

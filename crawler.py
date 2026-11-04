@@ -11,7 +11,7 @@ WIKI_PREFIX = f"{BASE_URL}/wiki/"
 ROBOTS_URL = f"{BASE_URL}/robots.txt"
 
 ROBOT_NAME = "WebSearchEngine"
-USER_AGENT = "WebSearchEngine/1.0 (educational university project)"
+USER_AGENT = "WebSearchEngine/1.0"
 
 HEADERS = {
     "User-Agent": USER_AGENT
